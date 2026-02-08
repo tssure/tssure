@@ -1,21 +1,67 @@
-# TSSure
+# TypedSure for TypeScript (TSSure)
 
 [![Build Status](https://github.com/tssure/tssure/workflows/CI/badge.svg)](https://github.com/tssure/tssure/actions?query=workflow%3ACI)
 
-[PRE-ALPHA] Not yet ready for general use; use for experimentation and feedback only.
+[PRE-ALPHA] Research preview; use for experimentation and feedback only.
 
-An automated contract guard framework for TypeScript that validates your code's type contracts at runtime.
+**TypedSure automatically exercises your TypeScript code during CI using its type signatures,
+and fails the build when behaviour has silently drifted - even though everything still type-checks.**
 
-## What is TSSure?
+TypeScript guarantees shapes.
+TypedSure guarantees those shapes still do what they used to do.
 
-TSSure automatically exercises your functions and methods to ensure they honour their type declarations. It bridges the gap between static type checking and unit testing by:
+It discovers exported functions and classes, generates valid inputs from their TypeScript types, executes them in a controlled scan run, and verifies that the results still satisfy their declared contracts.
 
-- **Automatically generating verification inputs** for your functions and methods based on their type annotations
-- **Validating return types** match their declarations
-- **Verifying with custom scenarios** using JSDoc annotations or TypedSure type annotations to define specific verification cases
-- **Catching type contract violations** before they become runtime bugs
+No decorators.
+No runtime overhead.
+Works alongside your existing tests.
 
-Think of it as automated contract verification that ensures your code does what its type signatures promise.
+---
+
+## What TypedSure is for
+
+TypedSure is designed to catch **behavioural regressions that static typing cannot see**, such as:
+
+- Logic changes that still satisfy the same types.
+- Edge cases no longer handled after refactors.
+- Assumptions that were true yesterday but aren’t today.
+- APIs that "technically" still work but no longer behave as expected.
+
+These are the bugs that slip past TypeScript, linters, and even well-maintained test suites.
+
+---
+
+## What TypedSure is not
+
+TypedSure is not:
+
+- a test framework,
+- a runtime type checker in production,
+- a schema validation library,
+- a decorator-based system,
+- a replacement for unit tests.
+
+TypedSure runs **only during the scan** (typically in CI) and has **zero impact on production code**.
+
+---
+
+## How it works (high level)
+
+1. TypedSure statically analyses your project using the TypeScript compiler API.
+2. It discovers exported APIs and their type signatures.
+3. It synthesises deterministic valid runtime inputs from those types.
+4. It executes the code during the scan.
+5. It verifies the results against the declared contracts.
+6. CI fails if behaviour has drifted.
+
+If everything still behaves as promised, the scan passes.
+
+## Contract confidence, derived from types
+
+TypedSure automatically exercises your functions and methods to ensure they honour their type declarations.
+
+Think of it as **automated contract verification**: it checks that your code still does
+what its type signatures promise - even after refactors, clean-ups, or "safe" changes that still type-check.
 
 ## Installation
 
@@ -102,7 +148,7 @@ export function add(a: number, b: number): TypedSure<number, {
 }
 ```
 
-Both approaches are fully supported and can even be mixed in the same codebase. See [TypedSure Documentation](docs/TYPEDSURE.md) for more details on type-based annotations.
+Both approaches are fully supported and can even be mixed in the same codebase.
 
 ### Fixture-Based Verification
 
@@ -153,7 +199,7 @@ export class Calculator {
 }
 ```
 
-Note that `Fixture`s are also `Scenario`s - they'll be executed as verification cases in the same way too.
+Note that fixtures are also executed as scenarios - they'll be run as verification cases in the same way too.
 
 ## Why Not Decorators?
 
@@ -183,10 +229,12 @@ TSSure categorizes verification results into:
 
 - **Pass** ✓ - Function/method returned a value matching its type declaration
 - **Fail** ✗ - Type contract violation detected
-- **Skip** ⊘ - Verification skipped (e.g., the `@Skip` decorator was used)
+- **Skip** ⊘ - Verification skipped (e.g., the method was explicitly skipped for verification)
 - **Warning** ⚠ - Potential issue detected (e.g., private constructor without fixtures)
 
 ## Why TSSure?
+
+TSSure doesn't replace _all of_ your unit tests - it complements them by handling the tedious work of validating type contracts, letting you focus your unit tests on business logic and edge cases.
 
 Traditional unit tests require you to manually write test cases for every function and method. TSSure automates this process by:
 
@@ -195,8 +243,6 @@ Traditional unit tests require you to manually write test cases for every functi
 3. **Catching regressions** - Automatically detects when code changes break type contracts
 4. **Complementing static analysis** - Validates runtime behaviour, not just static types
 
-TSSure doesn't replace _all of_ your unit tests - it complements them by handling the tedious work of validating type contracts, letting you focus your unit tests on business logic and edge cases.
-
 ## Relationship to PHPSure
 
-TSSure is the TypeScript equivalent of [PHPSure](https://github.com/phpsure/phpsure), bringing the same automated contract verification approach to the TypeScript ecosystem. While PHPSure uses PHP's Reflection API, TSSure leverages TypeScript's Compiler API for type inference and code discovery.
+TSSure is the TypeScript counterpart to [PHPSure](https://github.com/phpsure/phpsure), bringing the same automated contract verification approach to the TypeScript ecosystem. While PHPSure uses PHP's Reflection API, TSSure leverages TypeScript's Compiler API for type inference and code discovery.
