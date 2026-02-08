@@ -1,0 +1,33 @@
+# Source files
+src/
+test/
+tsconfig.json
+src/tsconfig.json
+
+# Config files
+.eslintrc*
+eslint.config.mjs
+prettier.config.mjs
+.prettierrc*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# CI
+.github/
+
+# Git
+.git/
+.gitignore
+
+# Build artifacts
+*.log
+npm-debug.log*
+node_modules/
+
+# Test coverage
+coverage/
+.nyc_output/
